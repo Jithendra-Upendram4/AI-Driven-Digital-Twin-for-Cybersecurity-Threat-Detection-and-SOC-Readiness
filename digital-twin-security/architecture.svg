@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="boxGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f3460;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="boxGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c73659;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="boxGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00b894;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00a085;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#0a0a14"/>
+  
+  <!-- Title -->
+  <rect x="150" y="15" width="500" height="45" rx="8" fill="url(#headerGrad)" filter="url(#shadow)"/>
+  <text x="400" y="45" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ffffff" text-anchor="middle">AI-Driven Digital Twin - System Architecture</text>
+  
+  <!-- Log Sources Box -->
+  <rect x="280" y="75" width="240" height="70" rx="8" fill="url(#boxGrad1)" filter="url(#shadow)" stroke="#3498db" stroke-width="2"/>
+  <text x="400" y="100" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">[ Log Sources ]</text>
+  <text x="400" y="120" font-family="Arial, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">Network Logs (CSV/PCAP)</text>
+  <text x="400" y="135" font-family="Arial, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">Web Server Logs</text>
+  
+  <!-- Arrow 1 -->
+  <path d="M400 145 L400 165" stroke="#3498db" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+  <polygon points="400,175 395,165 405,165" fill="#3498db"/>
+  
+  <!-- Data Ingestion Box -->
+  <rect x="280" y="180" width="240" height="50" rx="8" fill="url(#boxGrad1)" filter="url(#shadow)" stroke="#9b59b6" stroke-width="2"/>
+  <text x="400" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">[ Data Ingestion Layer ]</text>
+  <text x="400" y="222" font-family="Arial, sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">log_ingestion.py</text>
+  
+  <!-- Arrow 2 -->
+  <path d="M400 230 L400 250" stroke="#9b59b6" stroke-width="3" fill="none"/>
+  <polygon points="400,260 395,250 405,250" fill="#9b59b6"/>
+  
+  <!-- Digital Twin Core Box (Main) -->
+  <rect x="200" y="265" width="400" height="120" rx="10" fill="url(#boxGrad2)" filter="url(#shadow)" stroke="#e94560" stroke-width="3"/>
+  <text x="400" y="290" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">[ Digital Twin Core ]</text>
+  
+  <!-- Sub boxes inside Twin Core -->
+  <rect x="220" y="305" width="170" height="65" rx="6" fill="#1a1a2e" stroke="#f39c12" stroke-width="2"/>
+  <text x="305" y="330" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#f39c12" text-anchor="middle">Rule-Based Detection</text>
+  <text x="305" y="350" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">• Brute Force</text>
+  <text x="305" y="362" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">• DDoS • Exfiltration</text>
+  
+  <rect x="410" y="305" width="170" height="65" rx="6" fill="#1a1a2e" stroke="#00b894" stroke-width="2"/>
+  <text x="495" y="330" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#00b894" text-anchor="middle">ML Anomaly Detection</text>
+  <text x="495" y="350" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Isolation Forest</text>
+  <text x="495" y="362" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Unsupervised Learning</text>
+  
+  <!-- Arrow 3 -->
+  <path d="M400 385 L400 405" stroke="#e94560" stroke-width="3" fill="none"/>
+  <polygon points="400,415 395,405 405,405" fill="#e94560"/>
+  
+  <!-- Threat Store Box -->
+  <rect x="280" y="420" width="240" height="60" rx="8" fill="url(#boxGrad1)" filter="url(#shadow)" stroke="#f39c12" stroke-width="2"/>
+  <text x="400" y="445" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">[ Threat Intelligence Store ]</text>
+  <text x="400" y="465" font-family="Arial, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">SQLite / MongoDB (SIEM-Ready)</text>
+  
+  <!-- Arrow 4 -->
+  <path d="M400 480 L400 500" stroke="#f39c12" stroke-width="3" fill="none"/>
+  <polygon points="400,510 395,500 405,500" fill="#f39c12"/>
+  
+  <!-- Visualization Box -->
+  <rect x="200" y="515" width="400" height="70" rx="8" fill="url(#boxGrad3)" filter="url(#shadow)" stroke="#00b894" stroke-width="2"/>
+  <text x="400" y="540" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">[ Visualization & Reports ]</text>
+  
+  <!-- Sub elements -->
+  <rect x="220" y="550" width="100" height="25" rx="4" fill="#1a1a2e"/>
+  <text x="270" y="567" font-family="Arial, sans-serif" font-size="10" fill="#00b894" text-anchor="middle">Dashboard</text>
+  
+  <rect x="350" y="550" width="100" height="25" rx="4" fill="#1a1a2e"/>
+  <text x="400" y="567" font-family="Arial, sans-serif" font-size="10" fill="#00b894" text-anchor="middle">Alerts</text>
+  
+  <rect x="480" y="550" width="100" height="25" rx="4" fill="#1a1a2e"/>
+  <text x="530" y="567" font-family="Arial, sans-serif" font-size="10" fill="#00b894" text-anchor="middle">Reports</text>
+  
+  <!-- Side labels -->
+  <text x="50" y="325" font-family="Arial, sans-serif" font-size="11" fill="#e94560" text-anchor="middle" transform="rotate(-90 50 325)">DETECTION ENGINE</text>
+  <text x="750" y="325" font-family="Arial, sans-serif" font-size="11" fill="#00b894" text-anchor="middle" transform="rotate(90 750 325)">AI/ML POWERED</text>
+  
+  <!-- Legend -->
+  <rect x="620" y="75" width="160" height="90" rx="6" fill="#1a1a2e" stroke="#333" stroke-width="1"/>
+  <text x="700" y="95" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">Technology Stack</text>
+  <text x="640" y="115" font-family="Arial, sans-serif" font-size="9" fill="#3498db">●</text>
+  <text x="655" y="115" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8">Python 3.10+</text>
+  <text x="640" y="130" font-family="Arial, sans-serif" font-size="9" fill="#00b894">●</text>
+  <text x="655" y="130" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8">scikit-learn</text>
+  <text x="640" y="145" font-family="Arial, sans-serif" font-size="9" fill="#f39c12">●</text>
+  <text x="655" y="145" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8">SQLite / Streamlit</text>
+  <text x="640" y="160" font-family="Arial, sans-serif" font-size="9" fill="#e94560">●</text>
+  <text x="655" y="160" font-family="Arial, sans-serif" font-size="9" fill="#94a3b8">pandas / numpy</text>
+</svg>

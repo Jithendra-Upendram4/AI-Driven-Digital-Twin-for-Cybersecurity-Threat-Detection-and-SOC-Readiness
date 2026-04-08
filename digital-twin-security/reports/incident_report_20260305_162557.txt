@@ -1,0 +1,139 @@
+======================================================================
+         SECURITY INCIDENT REPORT - DIGITAL TWIN SYSTEM
+======================================================================
+
+Report Generated: 2026-03-05 16:25:57
+Total Log Entries Analyzed: 10000
+
+----------------------------------------------------------------------
+
+EXECUTIVE SUMMARY
+----------------------------------------
+• Total Security Events: 10000
+• Rule-Based Threats Detected: 4004
+• ML-Detected Anomalies: 499
+• Threat Percentage: 40.04%
+
+----------------------------------------------------------------------
+
+THREAT DETECTION BREAKDOWN (RULE-BASED)
+----------------------------------------
+  Normal: 5996 (60.0%)
+  DDoS Attack: 868 (8.7%)
+  Brute Force Attack: 700 (7.0%)
+  Port Scan: 600 (6.0%)
+  Data Exfiltration: 400 (4.0%)
+  Malware C2: 315 (3.1%)
+  Privilege Escalation: 300 (3.0%)
+  DNS Tunneling: 230 (2.3%)
+  SQL Injection: 219 (2.2%)
+  Cryptojacking: 141 (1.4%)
+  Ransomware Activity: 131 (1.3%)
+  Man-in-the-Middle: 100 (1.0%)
+
+----------------------------------------------------------------------
+
+THREAT SEVERITY ANALYSIS
+----------------------------------------
+  LOW: 5996
+  HIGH: 1691
+  CRITICAL: 1434
+  MEDIUM: 879
+
+----------------------------------------------------------------------
+
+ML ANOMALY DETECTION (ISOLATION FOREST)
+----------------------------------------
+  Normal Traffic: 9501
+  Anomalies Detected: 499
+
+----------------------------------------------------------------------
+
+TOP THREAT INCIDENTS
+----------------------------------------
+
+  Incident #2:
+    - Threat Type: DDoS Attack
+    - Source IP: 206.49.213.72
+    - Destination IP: 10.10.29.140
+    - Severity: CRITICAL
+    - Timestamp: 2026-01-01 00:23:57
+
+  Incident #4:
+    - Threat Type: Brute Force Attack
+    - Source IP: 221.108.18.109
+    - Destination IP: 10.10.0.116
+    - Severity: CRITICAL
+    - Timestamp: 2026-01-01 00:52:57
+
+  Incident #10:
+    - Threat Type: Port Scan
+    - Source IP: 159.242.149.106
+    - Destination IP: 10.5.8.72
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 02:06:44
+
+  Incident #11:
+    - Threat Type: DDoS Attack
+    - Source IP: 216.99.35.138
+    - Destination IP: 10.6.48.134
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 02:19:44
+
+  Incident #12:
+    - Threat Type: SQL Injection
+    - Source IP: 155.199.221.117
+    - Destination IP: 10.10.11.243
+    - Severity: MEDIUM
+    - Timestamp: 2026-01-01 02:43:34
+
+  Incident #18:
+    - Threat Type: Malware C2
+    - Source IP: 202.4.198.58
+    - Destination IP: 10.8.26.67
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 03:39:37
+
+  Incident #21:
+    - Threat Type: Privilege Escalation
+    - Source IP: 219.90.147.218
+    - Destination IP: 10.9.13.119
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 03:48:58
+
+  Incident #23:
+    - Threat Type: Data Exfiltration
+    - Source IP: 67.221.182.176
+    - Destination IP: 10.2.10.198
+    - Severity: CRITICAL
+    - Timestamp: 2026-01-01 04:14:12
+
+  Incident #24:
+    - Threat Type: Man-in-the-Middle
+    - Source IP: 125.254.132.34
+    - Destination IP: 10.1.21.230
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 04:23:43
+
+  Incident #26:
+    - Threat Type: Cryptojacking
+    - Source IP: 73.134.191.227
+    - Destination IP: 10.5.39.181
+    - Severity: HIGH
+    - Timestamp: 2026-01-01 04:31:17
+
+----------------------------------------------------------------------
+
+RECOMMENDATIONS
+----------------------------------------
+  • Implement account lockout policies
+  • Enable multi-factor authentication
+  • Configure rate limiting on firewalls
+  • Consider DDoS mitigation services
+  • Review outbound traffic policies
+  • Implement data loss prevention (DLP)
+
+======================================================================
+                    END OF REPORT
+         Digital Twin Security System - SOC Ready
+======================================================================

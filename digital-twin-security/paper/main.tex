@@ -1,0 +1,562 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{AI-Driven Digital Twin for Cybersecurity Threat Detection and SOC Readiness}
+
+\author{%
+\IEEEauthorblockN{U Jithendra Bhupathi Raju, K Aditya Sai}
+\IEEEauthorblockA{Department of Computer Science and Engineering (Cyber Security)\\
+Amrita Vishwa Vidyapeetham\\
+Emails: jithendraupendram0@gmail.com, adityasai@gmail.com}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper presents an AI-driven digital twin framework for enterprise cybersecurity monitoring and Security Operations Center (SOC) readiness. The current version integrates deterministic multi-rule detection (12 threat categories including normal traffic), unsupervised anomaly detection using Isolation Forest, and an in-line gateway decision layer for block/forward actions. The modular pipeline performs ingestion, target-scoped filtering, detection, persistence, reporting, and visualization. For realistic evaluation, the dataset is scaled to 100,000 events and exported in both CSV and libpcap-compatible PCAP formats for Wireshark analysis. In the latest validated run, the pipeline reports 39,979 rule-based threat detections and 5,000 machine-learning anomalies, while preserving 60,021 normal events. Results demonstrate practical scalability, packet-tool interoperability, and SOC-oriented response readiness.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Digital Twin, Cybersecurity, SOC, Anomaly Detection, Isolation Forest, PCAP, SIEM
+\end{IEEEkeywords}
+
+\section{Introduction}
+Modern enterprise networks generate high-volume telemetry from heterogeneous sources, making manual threat analysis difficult. Security teams require systems that can both detect known attack signatures and surface unknown behaviors in near real time. Digital twin concepts provide a promising approach by constructing a virtual representation of operational environments for monitoring, simulation, and response support \cite{tao2018digitaltwin,fuller2020digitaltwin}.
+
+This work develops a cybersecurity-focused digital twin that ingests structured log data, applies hybrid detection (rules + machine learning), stores incidents in a persistent threat repository, and exposes outputs through analyst-friendly dashboards and reports. The present implementation also enforces a protected-destination scope (Kali VM target IP) and supports packet capture (PCAP) generation/ingestion, enabling compatibility with packet analysis workflows used in SOC environments.
+
+Traditional SOC pipelines are often fragmented, where collection, analytics, reporting, and visualization are maintained as independent tools with limited data continuity. This fragmentation creates operational delays when analysts must validate an alert by switching contexts across SIEM dashboards, packet analyzers, and ad hoc scripts. The digital twin perspective unifies these activities by maintaining a synchronized virtual security state that can be queried, analyzed, and reported from one coherent architecture.
+
+In this project, synchronization is implemented in batch form rather than continuous stream form: every run updates the virtual state from the newest logs, executes analytics, and persists incident-level outcomes. In addition, a replay gateway mode applies digital-twin decisions to packet forwarding, blocking suspicious traffic and allowing benign traffic toward the protected host. This batch-plus-replay design is valuable in academic and pilot SOC settings because it enables deterministic replay, response demonstration, and comparative evaluation under controlled synthetic attack distributions.
+
+\section{Related Work}
+Digital twin research initially focused on manufacturing and cyber-physical systems, where virtual replicas support optimization and predictive maintenance \cite{tao2018digitaltwin}. Recent work has broadened the concept toward operational intelligence and decision support for complex infrastructures \cite{fuller2020digitaltwin}. In cybersecurity, the twin paradigm is increasingly used to model attack surfaces, emulate adversarial behavior, and evaluate defensive policies before deployment.
+
+Rule-based intrusion detection remains widely used due to interpretability and operational trust. Signature and threshold systems provide direct forensic traceability, but they require prior knowledge and careful threshold tuning. In contrast, unsupervised anomaly detection methods can identify out-of-distribution activity without requiring labels. Isolation Forest is attractive in SOC contexts because it scales to large tabular datasets with low computational overhead while maintaining robust anomaly ranking behavior \cite{liu2008iforest}.
+
+Packet analysis ecosystems such as Wireshark are central to incident response workflows \cite{wireshark}. Therefore, cybersecurity analytics systems benefit when they can interoperate with packet capture formats and tools, rather than only consuming feature tables. This project contributes by combining SOC-oriented tabular analytics and PCAP interoperability in one modular educational framework.
+
+Public benchmark datasets remain important for comparative IDS research. CICIDS2017 is widely used because it includes both PCAP traces and labeled flow-level CSV data across multiple attack categories, enabling reproducible evaluation pipelines \cite{cicids2017,sharafaldin2018}. Although this project primarily evaluates synthetic data, the architecture is compatible with benchmark-style feature extraction and can be extended for cross-dataset experiments.
+
+\section{Standards and Operational Alignment}
+Modern SOC systems are expected to align not only with detection performance goals but also with governance and incident-handling standards. To improve practical relevance, the proposed architecture is consistent with three commonly used references:
+\begin{itemize}
+    \item \textbf{NIST CSF 2.0}: emphasizes risk-informed governance, detection, response, and recovery outcomes \cite{nistcsf20}.
+    \item \textbf{MITRE ATT\&CK}: provides adversary tactics and techniques useful for mapping detection logic to real-world behaviors \cite{mitreattack}.
+    \item \textbf{NIST Incident Handling Guidance}: structures preparation, detection/analysis, containment, eradication, and post-incident activities \cite{nist80061r3}.
+\end{itemize}
+
+Table~\ref{tab:alignment} summarizes how project components map to these operational expectations.
+
+\begin{table}[h]
+\centering
+\caption{Operational Alignment of the Proposed Pipeline}
+\label{tab:alignment}
+\begin{tabular}{p{2.3cm}p{4.8cm}}
+\toprule
+Framework Element & Project Mapping \\
+\midrule
+NIST CSF 2.0 Detect / Respond & Rule engine and anomaly engine produce structured alerts; reporting supports response documentation \\
+MITRE ATT\&CK Technique Context & Rule categories (e.g., brute force, scan, DDoS-like behavior) can be mapped to ATT\&CK techniques for analyst communication \\
+NIST Incident Handling Lifecycle & Ingestion and analytics support detection/analysis; SQLite records and reports support post-incident tracking \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This alignment perspective strengthens the project's applicability for academic demonstration and SOC-readiness discussions, even before full enterprise deployment.
+
+\section{Objectives and Contributions}
+The main objectives are:
+\begin{itemize}
+    \item Build an end-to-end cybersecurity digital twin pipeline.
+    \item Detect known threats using transparent rule-based logic.
+    \item Detect unknown threats using unsupervised anomaly detection.
+    \item Support both CSV and PCAP data formats.
+    \item Persist incidents and generate SOC-ready outputs.
+\end{itemize}
+
+Key contributions of this project include:
+\begin{itemize}
+    \item A modular and reproducible Python implementation for academic and practical SOC scenarios.
+    \item A scaled synthetic dataset of 100,000 events with mixed benign and malicious patterns.
+    \item Integration of packet-level compatibility through libpcap-formatted data.
+    \item A hybrid detection design balancing interpretability (rules) and novelty detection (ML).
+    \item A report-oriented output path aligned with SOC communication and documentation practices.
+\end{itemize}
+
+\section{Threat Model and Assumptions}
+The project targets network-centric threats observable through flow-like and packet-derived telemetry. Threat categories represented in data generation include high-rate flooding behavior, authentication abuse patterns, suspicious scanning behavior, exfiltration-like transfer spikes, and web attack indicators.
+
+Assumptions made in the current implementation are:
+\begin{itemize}
+    \item Telemetry is available as structured records (CSV) or convertible packet traces (PCAP).
+    \item Host-level endpoint telemetry and deep process lineage are outside current scope.
+    \item The pipeline is executed in offline or nearline mode, not strict stream processing mode.
+    \item Synthetic labels used in generation are treated as scenario descriptors, while anomaly detection remains unsupervised at run time.
+\end{itemize}
+
+Under these assumptions, the system is intended for rapid SOC prototyping, training, and algorithmic benchmarking rather than production-grade autonomous response.
+
+\section{System Architecture}
+The architecture follows a layered design:
+\begin{enumerate}
+    \item \textbf{Data Ingestion Layer}: Loads CSV/PCAP logs, normalizes schema, and filters traffic to the protected destination.
+    \item \textbf{Digital Twin Core}: Executes deterministic rule-based and ML-based anomaly detection.
+    \item \textbf{Response and Gateway Layer}: Assigns \texttt{gateway\_decision} (BLOCK/FORWARD) for replay and mitigation demonstrations.
+    \item \textbf{Threat Intelligence Store}: Persists incidents, labels, anomaly outputs, and response actions in SQLite.
+    \item \textbf{Visualization and Reporting}: Produces dashboards and SOC incident reports.
+\end{enumerate}
+
+This separation improves maintainability and supports future integration with SIEM and streaming tools.
+
+Data contracts between layers are designed around stable fields such as timestamp, source and destination addresses, protocol, packet rate, transfer volume, and authentication failure signals. This explicit schema minimizes coupling across modules. For example, the anomaly engine can be retrained or replaced without changing persistence and reporting components, as long as the feature contract is respected.
+
+The architecture also follows a ``fail-soft'' principle: if one downstream component (for example visualization) is unavailable, the core detection and persistence path can still complete. This is important for SOC resilience because analytic continuity should not depend on UI availability.
+
+\subsection{Layer-Wise Data Contracts}
+To improve maintainability and reduce hidden coupling, each architecture layer exchanges an explicit data contract:
+\begin{itemize}
+    \item \textbf{Ingestion output contract}: timestamp, source and destination identifiers, transport protocol, transfer metrics, authentication signals.
+    \item \textbf{Detection output contract}: \texttt{rule\_threat}, \texttt{threat\_severity}, \texttt{anomaly}, \texttt{anomaly\_score}, and \texttt{anomaly\_label}.
+    \item \textbf{Response output contract}: \texttt{response\_action} and \texttt{gateway\_decision} for enforcement or simulation.
+    \item \textbf{Persistence contract}: event identifier, normalized evidence fields, and reporting status.
+\end{itemize}
+
+This contract-first organization allows independent versioning of modules. For instance, adding a new feature (e.g., geolocation risk score) does not require immediate changes to all consumers; it can be introduced as an optional field and gradually adopted.
+
+\subsection{Reliability and Failure Handling}
+The implementation uses practical defensive patterns suitable for educational SOC systems:
+\begin{itemize}
+    \item Input validation before model inference.
+    \item Graceful fallback when optional visualization components are not available.
+    \item Persistent storage as a source of truth when interactive layers are restarted.
+\end{itemize}
+
+While lightweight, these patterns reflect real operational needs where analyst workflows must continue even when one subsystem degrades.
+
+\section{Methodology}
+\subsection{Rule-Based Detection}
+The rule engine uses domain-driven thresholds for high-confidence detections.
+Representative examples include:
+\begin{itemize}
+    \item Brute force: failed login count above configured threshold.
+    \item DDoS behavior: unusually high packet rate.
+    \item Data exfiltration: elevated outbound byte volume.
+    \item Additional categories: port scan, SQL injection, malware C2, DNS tunneling, privilege escalation, ransomware activity, cryptojacking, and man-in-the-middle patterns.
+\end{itemize}
+
+Rule-based methods provide explainable alerts and fast execution, but they are limited to known patterns.
+
+To improve analyst usability, each rule output is mapped to a severity class and textual rationale. The current version also attaches \texttt{response\_action}; high/critical events trigger block behavior (simulated by default, optionally enforceable at host firewall level). This rationale is directly reusable in incident report generation and reduces triage latency.
+
+\subsection{ML-Based Anomaly Detection}
+To detect unknown attack behavior, the system applies Isolation Forest \cite{liu2008iforest} on numeric traffic features.
+Anomalies are identified with contamination fixed at 5\% for this implementation.
+
+Given a feature vector $x$, the model computes an anomaly score $s(x)$ based on expected isolation depth; lower expected path length corresponds to stronger anomaly likelihood.
+
+Let $h(x)$ denote the path length for sample $x$ averaged over an ensemble of random isolation trees, and let $c(n)$ be the average path length for unsuccessful search in a binary search tree with $n$ samples. The normalized score is commonly written as:
+\begin{equation}
+s(x,n) = 2^{-\frac{E[h(x)]}{c(n)}}
+\end{equation}
+where scores closer to 1 indicate stronger anomaly likelihood \cite{liu2008iforest}. In implementation, a contamination setting of $0.05$ determines the decision threshold.
+
+Feature preparation is intentionally lightweight: missing values are handled conservatively, and the current model uses \texttt{packet\_rate} and \texttt{bytes\_sent} as numeric inputs. Derived features can be added without changing model family, which keeps the system maintainable in small SOC teams.
+
+\subsection{Hybrid Decision Strategy}
+The hybrid strategy combines deterministic signatures and unsupervised anomaly scoring:
+\begin{itemize}
+    \item Rules capture known and high-precision attack classes.
+    \item Isolation Forest captures novel or weakly expressed abnormal behaviors.
+    \item Gateway policy merges both signals to derive block/forward decisions for replay experiments.
+\end{itemize}
+
+Operationally, hybrid decisions can be interpreted as a two-lane triage process:
+\begin{itemize}
+    \item \textbf{Lane A (deterministic)}: alerts with explicit rule triggers and reason codes.
+    \item \textbf{Lane B (probabilistic)}: alerts with anomaly scores requiring contextual validation.
+\end{itemize}
+
+This separation is aligned with SOC workflow realities where not all alerts have equal evidentiary strength.
+
+\subsection{End-to-End Processing Algorithm}
+The end-to-end workflow can be summarized as:
+\begin{enumerate}
+    \item Load input source and normalize schema.
+    \item Apply destination-scope filtering for protected asset monitoring.
+    \item Execute rule engine and attach threat labels/severity.
+    \item Build feature matrix and run Isolation Forest inference.
+    \item Merge deterministic and anomaly outputs; derive response and gateway decisions.
+    \item Persist events and alerts into SQLite.
+    \item Generate analyst report and dashboard artifacts.
+    \item Optionally replay only \texttt{FORWARD} packets toward protected host in gateway mode.
+\end{enumerate}
+
+The asymptotic runtime is dominated by feature matrix handling and model inference over $N$ events. In practice, observed execution remains suitable for iterative SOC experimentation at the 100,000-event scale.
+
+\subsection{Computational Complexity Perspective}
+Let $N$ be the number of events and $d$ the number of selected numeric features. Rule evaluation is approximately $\mathcal{O}(N)$ for fixed rule count. Isolation Forest training and scoring can be approximated as near-linear in $N$ for practical tree settings, with additional dependence on ensemble size and sub-sample configuration. End-to-end behavior in this project is therefore dominated by:
+\begin{equation}
+T_{total}(N) \approx T_{ingest}(N) + T_{rules}(N) + T_{iforest}(N,d) + T_{store}(N)
+\end{equation}
+
+For medium-scale educational workloads, this structure is computationally tractable on commodity hardware and supports rapid iterative experimentation.
+
+\subsection{Analyst-Centric Scoring Policy}
+A practical SOC deployment often requires converting raw model outputs into triage-friendly categories. A simple policy can be defined as:
+\begin{itemize}
+    \item \textbf{Critical}: high-severity rule hit and anomaly flag present.
+    \item \textbf{High}: high-severity rule hit without anomaly concurrence.
+    \item \textbf{Medium}: anomaly-only event with elevated transfer or rate metrics.
+    \item \textbf{Low}: weak anomaly signal with no rule trigger.
+\end{itemize}
+
+This policy can be implemented in the reporting layer without retraining models, providing flexible operational tuning.
+
+\section{Dataset and Data Engineering}
+The project dataset was scaled from 10,000 to 100,000 events.
+The generated distribution is summarized in Table~\ref{tab:distribution}.
+
+\begin{table}[h]
+\centering
+\caption{Dataset Distribution (100,000 Events)}
+\label{tab:distribution}
+\begin{tabular}{lrr}
+\toprule
+Class & Count & Percentage \\
+\midrule
+Normal Traffic & 55,000 & 55\% \\
+Attack Traffic (Total) & 45,000 & 45\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:attackmix} shows representative attack-type composition used in the scaled dataset.
+
+\begin{table}[h]
+\centering
+\caption{Representative Attack Mix in Generated Data}
+\label{tab:attackmix}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.72\columnwidth}r}
+\toprule
+\textbf{Attack Type} & \textbf{Count} \\
+\midrule
+DDoS & 8,000 \\
+Brute Force & 7,000 \\
+Port Scan & 6,000 \\
+SQL Injection & 4,500 \\
+Data Exfiltration & 4,000 \\
+Other Attack Categories (6 combined) & 15,500 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The combined category includes Malware C2, DNS Tunneling, Privilege Escalation, Ransomware Activity, Cryptojacking, and Man-in-the-Middle.
+
+Both tabular and packet formats are supported:
+\begin{itemize}
+    \item \textbf{CSV}: compact feature-oriented representation.
+    \item \textbf{PCAP}: packet-oriented representation for Wireshark and packet forensics workflows \cite{wireshark,scapy}.
+\end{itemize}
+
+From an engineering perspective, dual-format support serves two complementary goals:
+\begin{itemize}
+    \item Efficient model experimentation with compact tabular features.
+    \item Forensic validation and packet-level explainability with PCAP traces.
+\end{itemize}
+
+The generated PCAP is large (approximately 1 GB), reflecting payload simulation and packet-level realism. This size characteristic is useful for stress-testing ingestion and tooling compatibility under realistic storage and parsing pressure.
+
+\subsection{Feature Schema for Detection}
+Table~\ref{tab:features} summarizes representative core features used by the hybrid detection pipeline.
+
+\begin{table}[h]
+\centering
+\caption{Representative Features Used in Detection}
+\label{tab:features}
+\begin{tabular}{lp{4.8cm}}
+\toprule
+Feature & Operational Meaning \\
+\midrule
+packet\_rate & Burst behavior and potential flooding indicators \\
+bytes\_sent & Outbound transfer volume; exfiltration relevance \\
+bytes\_received & Inbound load and traffic asymmetry context \\
+failed\_logins & Authentication abuse signal for brute-force patterns \\
+protocol / port & Service context and protocol-specific risk cues \\
+duration & Session behavior and persistence characteristics \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Feature definitions remain intentionally interpretable so that analysts can connect alerts to concrete network behaviors.
+
+\section{Implementation}
+The implementation is organized into independent modules:
+\begin{itemize}
+    \item \texttt{ingestion/log\_ingestion.py}: loading and preprocessing of CSV/PCAP.
+    \item \texttt{twin\_core/rule\_engine.py}: signature-rule detection.
+    \item \texttt{twin\_core/anomaly\_engine.py}: Isolation Forest-based anomaly detection.
+    \item \texttt{storage/threat\_store.py}: SQLite persistence layer.
+    \item \texttt{visualization/dashboard.py}: Streamlit analyst dashboard.
+    \item \texttt{reports/generate\_report.py}: incident report generation.
+    \item \texttt{scripts/digital\_twin\_gateway.py}: in-line replay gateway for block/forward decision execution.
+    \item \texttt{main.py}: orchestration of the full pipeline.
+\end{itemize}
+
+Core dependencies include Pandas, NumPy, scikit-learn, Streamlit, Matplotlib, Scapy, and dpkt.
+
+\subsection{Module Responsibilities}
+The ingestion module handles file-type detection and parsing logic, ensuring a consistent schema regardless of CSV or PCAP source. The rule engine is intentionally deterministic and auditable. The anomaly engine encapsulates model creation, fitting/inference, and anomaly flag generation. The storage module abstracts SQL operations to maintain a clear contract for the rest of the pipeline.
+
+The reporting module transforms technical output into SOC-readable summaries with timestamps, incident counts, and key indicators. The dashboard module surfaces aggregate trends for analyst decision support. The gateway module applies detection outputs to packet-forwarding decisions for response demonstration. This decomposition improves unit testability and lowers maintenance cost.
+
+\subsection{Storage and Query Considerations}
+SQLite is used as a lightweight persistent store suitable for coursework and local SOC simulations. While not a replacement for enterprise SIEM backends, it provides reliable local persistence, simple SQL querying, and easy portability. Migration to larger backends (for example Elasticsearch or managed SQL services) can be achieved by preserving the same incident schema.
+
+\subsection{Implementation Walkthrough}
+The practical execution path in \texttt{main.py} follows a deterministic sequence to maximize reproducibility:
+\begin{enumerate}
+    \item Initialize environment and resolve input path.
+    \item Parse source logs into normalized tabular representation.
+    \item Apply rule detections and attach explicit labels.
+    \item Run Isolation Forest anomaly inference.
+    \item Merge and persist event records into SQLite.
+    \item Emit processed artifacts for dashboard and reporting layers.
+\end{enumerate}
+
+This deterministic ordering makes debugging straightforward and supports side-by-side comparison across runs when tuning thresholds or model parameters.
+
+\subsection{Portability Considerations}
+The project is portable across common development environments because it relies on standard Python tooling and local file-based storage. PCAP compatibility with Wireshark strengthens cross-tool portability for demonstrations and incident-analysis exercises.
+
+\section{Evaluation Protocol}
+Evaluation was performed under the following protocol:
+\begin{enumerate}
+    \item Generate synthetic data with controlled benign/attack distribution.
+    \item Execute full pipeline from ingestion to persistence and reporting.
+    \item Record total detections, anomaly count, response decisions, and runtime characteristics.
+    \item Verify output compatibility across CSV and PCAP input pathways.
+    \item Validate gateway behavior through replay-mode block/forward outcomes.
+\end{enumerate}
+
+The focus is engineering validation and pipeline scalability rather than classifier benchmarking against external public datasets. This is consistent with the project objective of demonstrating digital twin SOC readiness.
+
+\subsection{Validation Dimensions}
+Four complementary dimensions were used to assess the system:
+\begin{itemize}
+    \item \textbf{Functional validity}: all modules execute without pipeline breakage.
+    \item \textbf{Detection validity}: known attacks are surfaced by rules; unusual events are surfaced by anomaly model.
+    \item \textbf{Data-format validity}: CSV and PCAP both feed successful analysis.
+    \item \textbf{Operational validity}: outputs are consumable by SOC-style dashboards and reports.
+    \item \textbf{Response validity}: threats and anomalies map to enforceable or simulated block decisions.
+\end{itemize}
+
+\section{Extended Experimental Analysis}
+In addition to aggregate totals, stage-level runtime trends provide insight for optimization. Table~\ref{tab:stageperf} summarizes representative stage measurements.
+
+\begin{table}[h]
+\centering
+\caption{Representative Stage-Level Runtime Summary}
+\label{tab:stageperf}
+\begin{tabular}{lrr}
+\toprule
+Pipeline Stage & Approx. Time (s) & Relative Share \\
+\midrule
+Data Generation & 2.0 & 13.3\% \\
+PCAP Construction & 3.0 & 20.0\% \\
+Detection + Persistence + Reporting & 10.0 & 66.7\% \\
+\midrule
+Total End-to-End & 15.0 & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These measurements indicate that downstream analytics and persistence consume most of the total runtime, while generation remains relatively lightweight.
+
+\subsection{Error Surface and False Alert Discussion}
+Because the dataset is synthetic and intentionally diverse, anomaly outputs include both strong and weak outliers. In practical SOC settings, weak outliers can correspond to benign-but-rare behavior, creating investigation overhead. The hybrid strategy reduces this burden by allowing analysts to prioritize events where anomaly signals coincide with deterministic high-severity rules.
+
+\subsection{What the Current Metrics Mean}
+The reported metrics should be interpreted as system-level throughput and detection-coverage indicators, not final claims of production detection accuracy. They confirm that the digital twin pipeline can process high-volume mixed traffic and emit structured, actionable outputs under controlled conditions.
+
+\section{Experimental Results}
+On the 100,000-event dataset, the current pipeline produced the outcomes in Table~\ref{tab:results}.
+
+\begin{table}[h]
+\centering
+\caption{Pipeline Results on 100,000 Events}
+\label{tab:results}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Events Processed & 100,000 \\
+Rule-Based Threats Detected & 39,979 \\
+ML Anomalies Detected & 5,000 \\
+Normal Events & 60,021 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Observed runtime characteristics from project execution:
+\begin{itemize}
+    \item Data generation: approximately 2 seconds.
+    \item PCAP creation: approximately 3 seconds.
+    \item End-to-end pipeline execution: approximately 15 seconds.
+\end{itemize}
+
+These results indicate that the architecture remains operational at higher synthetic data volumes while preserving modularity.
+
+The expanded rule taxonomy in this version covers 11 explicit attack classes plus normal traffic, and the report output confirms stable severity segmentation (LOW/HIGH/CRITICAL/MEDIUM) suitable for SOC triage.
+
+\subsection{Interpretation of Detection Outputs}
+The relationship between deterministic detections and anomaly detections is informative for SOC triage. Rule detections identify explicitly modeled patterns, while anomaly detections surface behavior that may not match predefined templates. In practice, overlap and divergence between these sets can be used to prioritize analyst investigation:
+\begin{itemize}
+    \item Intersection of both sets suggests high-risk candidates.
+    \item Rule-only detections suggest expected known attacks.
+    \item Anomaly-only detections suggest novel behavior or feature drift.
+\end{itemize}
+
+\subsection{Scalability Observations}
+Scaling from 10,000 to 100,000 events preserved pipeline stability without architectural changes. This indicates that the modular design and selected algorithms are appropriate for medium-scale educational SOC workloads. The most sensitive stages were large-file parsing (especially PCAP) and persistence throughput, both of which remained operational in the reported execution runs.
+
+\section{Case Study: SOC Incident Workflow}
+To illustrate practical usage, consider a run where packet-rate spikes and failed-logins occur simultaneously across multiple source addresses. The rule engine flags potential DDoS and brute-force indicators, while the anomaly engine highlights additional outlier sessions with unusual byte-transfer behavior. Analysts can then:
+\begin{enumerate}
+    \item Review high-severity deterministic alerts first.
+    \item Inspect anomaly-only alerts for possible stealth activity.
+    \item Cross-check packet evidence in Wireshark using generated PCAP traces.
+    \item Apply gateway decision policy to block suspicious packets and forward only allowed traffic.
+    \item Export incident summary from the report generator for escalation.
+\end{enumerate}
+
+This workflow demonstrates why combined tabular and packet evidence is useful in SOC training and operations.
+
+\subsection{Escalation Narrative Example}
+An example escalation narrative can be generated as follows: ``At timestamp $t$, a cluster of sources produced sustained packet-rate spikes beyond threshold while one subset also exhibited repeated authentication failures. Rule-based indicators suggested coordinated DDoS and brute-force activity. Concurrent anomaly flags identified additional sessions with unusual outbound transfer behavior, increasing confidence of multi-vector activity. Packet trace review in Wireshark corroborated transport and endpoint patterns. Incident severity was elevated and archived for SOC handoff.''
+
+Such narratives improve consistency across analyst shifts and support structured communication to supervisors.
+
+\section{Discussion}
+The project demonstrates that a practical cybersecurity digital twin can be constructed using lightweight open-source tooling while supporting both security analytics and SOC reporting requirements.
+
+Strengths:
+\begin{itemize}
+    \item Explainability from rule-based detections.
+    \item Unknown-pattern sensitivity from unsupervised ML.
+    \item Multi-format interoperability (CSV + PCAP).
+    \item Actionable response path through block/forward gateway decisions.
+    \item Clear module boundaries for extension and testing.
+\end{itemize}
+
+Limitations:
+\begin{itemize}
+    \item Current evaluation is based on synthetic data.
+    \item Continuous real-time stream processing is not yet enabled.
+    \item Advanced correlation with external threat intelligence feeds is pending.
+    \item Ground-truth calibrated precision/recall analysis is not fully reported in this stage.
+\end{itemize}
+
+\subsection{Operational Relevance}
+Even with these limitations, the system supports several practical SOC-readiness goals: repeatable incident generation, transparent detection logic, anomaly-assisted triage, and report-driven communication. As a final-year project, this positions the work between academic prototype and pre-production architecture.
+
+\subsection{Comparison with Single-Method Approaches}
+Compared with purely rule-based systems, the proposed architecture is better positioned to surface previously unseen behaviors. Compared with purely unsupervised systems, it retains interpretable high-confidence alerts that map directly to known attack semantics. This balanced design is especially suitable for educational SOC contexts where explainability and novelty sensitivity are both important.
+
+\section{Deployment Roadmap}
+A practical roadmap from prototype to production-oriented deployment can be organized into three phases:
+\begin{enumerate}
+    \item \textbf{Phase I (Current)}: offline/nearline analytics with local persistence and dashboard reporting.
+    \item \textbf{Phase II}: streaming ingestion, queue-backed processing, and centralized storage.
+    \item \textbf{Phase III}: SIEM/SOAR integration, role-based workflows, and governance controls.
+\end{enumerate}
+
+Each phase preserves the core contract-first architecture, allowing incremental modernization rather than full redesign.
+
+\section{Reproducibility and Deployment Notes}
+The project can be reproduced using standard Python dependencies and the provided modular structure. A typical workflow is:
+\begin{enumerate}
+    \item Install dependencies from \texttt{requirements.txt}.
+    \item Generate or load source logs in CSV/PCAP format.
+    \item Execute \texttt{main.py} to run the full detection pipeline.
+    \item Launch the Streamlit dashboard for analyst visualization.
+    \item Optionally execute \texttt{scripts/digital\_twin\_gateway.py} for replay-based block/forward validation.
+\end{enumerate}
+
+For presentation settings, Wireshark integration is useful for demonstrating packet-level validity of synthetic traces. This strengthens confidence that alerts are not only model artifacts but can be inspected with standard industry tooling.
+
+\subsection{Reproducibility Checklist}
+To improve repeatability, the following checklist is recommended:
+\begin{itemize}
+    \item Record dependency versions and execution environment details.
+    \item Fix random seeds for data generation and model initialization where possible.
+    \item Archive generated datasets and processed outputs for each experimental run.
+    \item Store report artifacts with timestamped identifiers.
+\end{itemize}
+
+Maintaining this checklist makes it easier to compare tuning decisions and defend project outcomes during academic evaluation.
+
+\section{Ethical and Practical Considerations}
+Cybersecurity datasets can inadvertently encode unrealistic behavior if generation parameters are not carefully controlled. This project therefore separates educational demonstration claims from production efficacy claims. The generated attack traffic is intended for defensive research and SOC training, not for offensive deployment.
+
+From a practical perspective, future versions should include access controls, audit logging, and secure handling policies when integrating with real enterprise telemetry.
+
+\section{Appendix-Style Technical Notes}
+This section documents compact pseudocode to support implementation transparency.
+
+\subsection{Hybrid Detection Pseudocode}
+\begin{verbatim}
+Input: events E, rule set R, anomaly model M
+Output: enriched events E'
+
+1. E_norm <- normalize(E)
+2. E_scope <- filter_target(E_norm, protected_dest)
+3. For each event e in E_scope:
+4.     e.rule_label, e.severity <- apply_rules(R, e)
+5. X <- extract_numeric_features(E_scope)
+6. A <- infer_anomalies(M, X)
+7. For i from 1 to |E_scope|:
+8.     E_scope[i].anomaly_flag <- A[i]
+9.     E_scope[i].gateway_decision <- policy(E_scope[i])
+10. persist(E_scope)
+11. generate_reports(E_scope)
+12. return E_scope
+\end{verbatim}
+
+\subsection{Data Processing Notes}
+In PCAP mode, source and destination metadata are extracted from packet headers and mapped to the same schema used by CSV mode. This unification ensures that downstream models and rules remain agnostic to the original data container format.
+
+\subsection{Why This Matters for Final-Year Evaluation}
+For academic assessment, the combination of architecture, algorithmic reasoning, operational workflow, and reproducibility evidence demonstrates full-stack engineering maturity. The project does not only train a model; it constructs a coherent cybersecurity analysis system with clear extension paths.
+
+\section{Future Work}
+Planned enhancements include:
+\begin{itemize}
+    \item Streaming ingestion with Apache Kafka.
+    \item SIEM integration (e.g., ELK or Splunk connectors).
+    \item Deep learning anomaly models (LSTM/Autoencoder).
+    \item Automated response integration with SOAR workflows beyond current gateway-policy actions.
+    \item Expanded quantitative evaluation with labeled benchmark datasets.
+    \item Drift monitoring and periodic model recalibration policies.
+    \item Role-based dashboard views for SOC tiered operations.
+\end{itemize}
+
+\section{Conclusion}
+This paper presented an AI-driven cybersecurity digital twin for threat detection and SOC readiness. By combining deterministic multi-rule detection and Isolation Forest anomaly detection, the system addresses both known and unknown threats in a unified pipeline. The implementation supports CSV and PCAP workflows, target-scoped monitoring, scalable synthetic data generation, persistent incident storage, analyst-facing reporting, and replay-based block/forward response validation. The current results validate architectural feasibility and provide a strong baseline for streaming and enterprise SIEM/SOAR extensions.
+
+Overall, the work demonstrates that a modular digital twin approach can bridge algorithm development, data engineering, and SOC communication requirements in a single reproducible platform. This makes it a strong foundation for subsequent research and practical modernization toward continuous security operations.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

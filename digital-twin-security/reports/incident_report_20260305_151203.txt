@@ -1,0 +1,128 @@
+======================================================================
+         SECURITY INCIDENT REPORT - DIGITAL TWIN SYSTEM
+======================================================================
+
+Report Generated: 2026-03-05 15:12:03
+Total Log Entries Analyzed: 30
+
+----------------------------------------------------------------------
+
+EXECUTIVE SUMMARY
+----------------------------------------
+• Total Security Events: 30
+• Rule-Based Threats Detected: 15
+• ML-Detected Anomalies: 2
+• Threat Percentage: 50.00%
+
+----------------------------------------------------------------------
+
+THREAT DETECTION BREAKDOWN (RULE-BASED)
+----------------------------------------
+  Normal: 15 (50.0%)
+  DDoS Attack: 8 (26.7%)
+  Brute Force Attack: 7 (23.3%)
+
+----------------------------------------------------------------------
+
+THREAT SEVERITY ANALYSIS
+----------------------------------------
+  LOW: 15
+  HIGH: 8
+  MEDIUM: 4
+  CRITICAL: 3
+
+----------------------------------------------------------------------
+
+ML ANOMALY DETECTION (ISOLATION FOREST)
+----------------------------------------
+  Normal Traffic: 28
+  Anomalies Detected: 2
+
+----------------------------------------------------------------------
+
+TOP THREAT INCIDENTS
+----------------------------------------
+
+  Incident #3:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.20
+    - Destination IP: 10.0.0.10
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:01:00
+
+  Incident #4:
+    - Threat Type: Brute Force Attack
+    - Source IP: 192.168.1.25
+    - Destination IP: 10.0.0.5
+    - Severity: MEDIUM
+    - Timestamp: 2026-01-08 09:01:30
+
+  Incident #6:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.35
+    - Destination IP: 10.0.0.5
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:02:45
+
+  Incident #8:
+    - Threat Type: Brute Force Attack
+    - Source IP: 192.168.1.45
+    - Destination IP: 10.0.0.5
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:03:30
+
+  Incident #10:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.55
+    - Destination IP: 10.0.0.5
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:04:30
+
+  Incident #12:
+    - Threat Type: Brute Force Attack
+    - Source IP: 192.168.1.65
+    - Destination IP: 10.0.0.5
+    - Severity: MEDIUM
+    - Timestamp: 2026-01-08 09:05:30
+
+  Incident #13:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.70
+    - Destination IP: 10.0.0.35
+    - Severity: CRITICAL
+    - Timestamp: 2026-01-08 09:06:00
+
+  Incident #16:
+    - Threat Type: Brute Force Attack
+    - Source IP: 192.168.1.85
+    - Destination IP: 10.0.0.5
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:07:30
+
+  Incident #17:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.90
+    - Destination IP: 10.0.0.45
+    - Severity: HIGH
+    - Timestamp: 2026-01-08 09:08:00
+
+  Incident #19:
+    - Threat Type: DDoS Attack
+    - Source IP: 192.168.1.100
+    - Destination IP: 10.0.0.50
+    - Severity: CRITICAL
+    - Timestamp: 2026-01-08 09:09:00
+
+----------------------------------------------------------------------
+
+RECOMMENDATIONS
+----------------------------------------
+  • Implement account lockout policies
+  • Enable multi-factor authentication
+  • Configure rate limiting on firewalls
+  • Consider DDoS mitigation services
+
+======================================================================
+                    END OF REPORT
+         Digital Twin Security System - SOC Ready
+======================================================================
